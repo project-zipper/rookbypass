@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Original Chess</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    margin: 0;
+    background: #1e1e1e;
+    color: white;
+    font-family: system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1 { margin: 20px 0 10px; }
+
+  table {
+    border-collapse: collapse;
+    box-shadow: 0 0 30px rgba(0,0,0,0.6);
+  }
+
+  td {
+    width: 64px;
+    height: 64px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 40px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .white { background: #f0d9b5; }
+  .black { background: #b58863; }
+  .selected { outline: 4px solid red; }
+
+  .controls {
+    margin: 15px;
+  }
+
+  .status {
+    margin-top: 10px;
+    font-weight: bold;
+  }
+
+  a {
+    color: #ffcc00;
+    text-decoration: none;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<h1>♟ Original Chess</h1>
+
+<div class="controls">
+  <a href="index.html">← Back to Games</a>
+</div>
+
+<table id="board"></table>
+<div class="status" id="status"></div>
+
+<script>
+const boardEl = document.getElementById("board");
+const statusEl = document.getElementById("status");
+
+const pieces = {
+  K:"♔", Q:"♕", R:"♖", B:"♗", N:"♘", P:"♙",
+  k:"♚", q:"♛", r:"♜", b:"♝", n:"♞", p:"♟"
+};
+
+let board = [
+  ["r","n","b","q","k","b","n","r"],
+  ["p","p","p","p","p","p","p","p"],
+  ["","","","","","","",""],
+  ["","","","","","","",""],
+  ["","","","","","","",""],
+  ["","","","","","","",""],
+  ["P","P","P","P","P","P","P","P"],
+  ["R","N","B","Q","K","B","N","R"]
+];
+
+let selected = null;
+let turn = "white";
+let moved = { K:false, k:false, r0:false, r7:false, R0:false, R7:false };
+
+function isWhite(p){ return p === p.toUpperCase(); }
+
+function drawBoard() {
+  boardEl.innerHTML = "";
+  for (let y=0;y<8;y++) {
+    const row = document.createElement("tr");
+    for (let x=0;x<8;x++) {
+      const cell = document.createElement("td");
+      cell.className = (x+y)%2===0 ? "white":"black";
+      if (board[y][x]) cell.textContent = pieces[board[y][x]];
+      if (selected && selected.x===x && selected.y===y) cell.classList.add("selected");
+      cell.onclick = () => clickSquare(x,y);
+      row.appendChild(cell);
+    }
+    boardEl.appendChild(row);
+  }
+  statusEl.textContent = `${turn.toUpperCase()} to move`;
+}
+
+function clickSquare(x,y){
+  const piece = board[y][x];
+  if (!selected) {
+    if (piece && ((turn==="white")===isWhite(piece))) {
+      selected={x,y};
+      drawBoard();
+    }
+    return;
+  }
+
+  if (tryMove(selected.x, selected.y, x, y)) {
+    turn = turn==="white"?"black":"white";
+    if (isCheckmate(turn)) {
+      alert(`${turn==="white"?"BLACK":"WHITE"} WINS BY CHECKMATE`);
+    }
+  }
+
+  selected=null;
+  drawBoard();
+}
+
+function tryMove(x1,y1,x2,y2){
+  const p=board[y1][x1];
+  if (!isLegalMove(x1,y1,x2,y2)) return false;
+
+  const backup=JSON.stringify(board);
+  board[y2][x2]=p;
+  board[y1][x1]="";
+
+  if (p==="P" && y2===0) board[y2][x2]="Q";
+  if (p==="p" && y2===7) board[y2][x2]="q";
+
+  if (inCheck(turn)) {
+    board=JSON.parse(backup);
+    return false;
+  }
+  return true;
+}
+
+function pathClear(x1,y1,x2,y2){
+  const dx=Math.sign(x2-x1), dy=Math.sign(y2-y1);
+  let x=x1+dx, y=y1+dy;
+  while (x!==x2 || y!==y2){
+    if (board[y][x]) return false;
+    x+=dx; y+=dy;
+  }
+  return true;
+}
+
+function isLegalMove(x1,y1,x2,y2){
+  const p=board[y1][x1], t=board[y2][x2];
+  if (t && isWhite(p)===isWhite(t)) return false;
+  const dx=x2-x1, dy=y2-y1;
+
+  switch(p.toLowerCase()){
+    case "p":{
+      const dir=isWhite(p)?-1:1;
+      if (!t && dx===0 && dy===dir) return true;
+      if (t && Math.abs(dx)===1 && dy===dir) return true;
+      return false;
+    }
+    case "r": return (dx===0||dy===0)&&pathClear(x1,y1,x2,y2);
+    case "b": return Math.abs(dx)===Math.abs(dy)&&pathClear(x1,y1,x2,y2);
+    case "q": return (dx===0||dy===0||Math.abs(dx)===Math.abs(dy))&&pathClear(x1,y1,x2,y2);
+    case "n": return (Math.abs(dx)===2&&Math.abs(dy)===1)||(Math.abs(dx)===1&&Math.abs(dy)===2);
+    case "k": return Math.abs(dx)<=1&&Math.abs(dy)<=1;
+  }
+  return false;
+}
+
+function findKing(color){
+  for(let y=0;y<8;y++)for(let x=0;x<8;x++){
+    if(board[y][x]===(color==="white"?"K":"k")) return {x,y};
+  }
+}
+
+function inCheck(color){
+  const k=findKing(color);
+  for(let y=0;y<8;y++)for(let x=0;x<8;x++){
+    const p=board[y][x];
+    if(p && ((color==="white")!==isWhite(p))){
+      if(isLegalMove(x,y,k.x,k.y)) return true;
+    }
+  }
+  return false;
+}
+
+function isCheckmate(color){
+  if(!inCheck(color)) return false;
+  for(let y=0;y<8;y++)for(let x=0;x<8;x++){
+    const p=board[y][x];
+    if(p && ((color==="white")===isWhite(p))){
+      for(let y2=0;y2<8;y2++)for(let x2=0;x2<8;x2++){
+        const backup=JSON.stringify(board);
+        if(isLegalMove(x,y,x2,y2)){
+          board[y2][x2]=p;
+          board[y][x]="";
+          if(!inCheck(color)){ board=JSON.parse(backup); return false; }
+          board=JSON.parse(backup);
+        }
+      }
+    }
+  }
+  return true;
+}
+
+drawBoard();
+</script>
+
+</body>
+</html>
