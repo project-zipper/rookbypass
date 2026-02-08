@@ -1,107 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Rook Bypasser</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #fff;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 15px;
-    }
-    a {
-      display: block;
-      text-align: center;
-      padding: 20px;
-      background: #222;
-      border-radius: 12px;
-      text-decoration: none;
-      color: #fff;
-      font-weight: bold;
-    }
-    a:hover {
-      background: #333;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Rook Bypasser</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: linear-gradient(135deg, #1e1e1e, #2b2b2b);
+    color: white;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 900px;
+    width: 100%;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+  }
+
+  p {
+    opacity: 0.8;
+    margin-bottom: 40px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .card {
+    background: #333;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+  }
+
+  .card h2 {
+    margin-top: 0;
+  }
+
+  .card p {
+    font-size: 0.95rem;
+    opacity: 0.85;
+  }
+
+  .card a {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    background: #ffcc00;
+    color: #000;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  .card a:hover {
+    background: #ffd633;
+  }
+
+  footer {
+    margin-top: 50px;
+    opacity: 0.6;
+    font-size: 0.9rem;
+  }
+</style>
 </head>
 <body>
 
-<h1>Rook Bypasser</h1>
+<div class="container">
+  <h1> Rook Bypasser ♟ Custom Chess Games</h1>
+  <p>Classic chess and experimental variants with wild rules</p>
 
-<div class="grid">
+  <div class="grid">
 
-  <!-- Apps -->
-  <a href="intent://com.android.vending/#Intent;scheme=android-app;end">Play Store</a>
-  <a href="intent://com.google.android.youtube/#Intent;scheme=android-app;end">YouTube</a>
-  <a href="intent://com.sec.android.app.myfiles/#Intent;scheme=android-app;end">My Files</a>
+    <!-- Original Chess -->
+    <div class="card">
+      <h2>Original Chess</h2>
+      <p>Standard rules. Checkmate wins. Pure strategy.</p>
+      <a href="chess.html">Play</a>
+    </div>
 
-  <!-- Screen lock (special Google intent) -->
-  <a href="intent://com.google.android.gms/#Intent;scheme=promote_smartlock_scheme;end">
-    Screen Lock
-  </a>
+    <!-- Rook–King Variant -->
+    <div class="card">
+      <h2>Rook–King Chess</h2>
+      <p>Captured pieces become rooks. Win by moving your king onto a rook.</p>
+      <a href="rook-king.html">Play</a>
+    </div>
 
-  <!-- REAL Settings option pages -->
-  <a href="intent://com.android.settings/#Intent;scheme=android-app;action=android.settings.DEVELOPMENT_SETTINGS;end">
-    Developer Options
-  </a>
+    <!-- Amazon Jungle -->
+    <div class="card">
+      <h2>Amazon Jungle Chess</h2>
+      <p>Wild terrain, special Amazon pieces, chaotic tactics.</p>
+      <a href="amazon.html">Play</a>
+    </div>
 
-  <a href="intent://com.android.settings/#Intent;scheme=android-app;action=android.settings.WIFI_SETTINGS;end">
-    Wi-Fi
-  </a>
+    <!-- Business Chess -->
+    <div class="card">
+      <h2>Business Chess</h2>
+      <p>Money, trades, hostile takeovers instead of captures.</p>
+      <a href="bussiness.html">Play</a>
+    </div>
 
-  <a href="intent://com.android.settings/#Intent;scheme=android-app;action=android.settings.BLUETOOTH_SETTINGS;end">
-    Bluetooth
-  </a>
+    <!-- Variant 1 -->
+    <div class="card">
+      <h2>Fog of War Chess</h2>
+      <p>You can only see squares your pieces control.</p>
+      <a href="fog.html">Play</a>
+    </div>
 
-  <a href="intent://com.android.settings/#Intent;scheme=android-app;action=android.settings.APPLICATION_SETTINGS;end">
-    Apps
-  </a>
+    <!-- Variant 2 -->
+    <div class="card">
+      <h2>Exploding Chess</h2>
+      <p>Captures cause area explosions.</p>
+      <a href="explode.html">Play</a>
+    </div>
 
-  <a href="intent://com.android.settings/#Intent;scheme=android-app;action=android.settings.DISPLAY_SETTINGS;end">
-    Display
-  </a>
+    <!-- Variant 3 -->
+    <div class="card">
+      <h2>Time Travel Chess</h2>
+      <p>Undo moves by sacrificing pieces.</p>
+      <a href="time.html">Play</a>
+    </div>
 
-  <a href="intent://com.android.settings/#Intent;scheme=android-app;action=android.settings.SOUND_SETTINGS;end">
-    Sound
-  </a>
+    <!-- Variant 4 -->
+    <div class="card">
+      <h2>Gravity Chess</h2>
+      <p>Pieces fall downward after every move.</p>
+      <a href="gravity.html">Play</a>
+    </div>
 
-  <a href="intent://com.android.settings/#Intent;scheme=android-app;action=android.settings.BATTERY_SAVER_SETTINGS;end">
-    Battery
-  </a>
+    <!-- Variant 5 -->
+    <div class="card">
+      <h2>Zombie Chess</h2>
+      <p>Captured pieces may come back… changed.</p>
+      <a href="zombie.html">Play</a>
+    </div>
 
-  <a href="intent://com.android.settings/#Intent;scheme=android-app;action=android.settings.DATE_SETTINGS;end">
-    Date & Time
-  </a>
+      <!-- Variant 6 -->
+    <div class="card">
+      <h2>Rhess</h2>
+      <p>Capture pieces and they will combine as a rook and whatever peice.</p>
+      <a href="rookcombiner.html">Play</a>
+    </div>
 
-  <a href="intent://com.android.settings/#Intent;scheme=android-app;action=android.settings.LOCALE_SETTINGS;end">
-    Language
-  </a>
+      <!-- Variant 7 -->
+    <div class="card">
+      <h2> Rook Chess</h2>
+      <p>Every piece but the king are rooks.</p>
+      <a href="rookchess.html">Play</a>
+    </div>
 
-  <a href="intent://com.android.settings/#Intent;scheme=android-app;action=android.settings.SECURITY_SETTINGS;end">
-    Security
-  </a>
+      <!-- Variant 8 -->
+    <div class="card">
+      <h2>Rooker</h2>
+      <p>The rooks have trapped the kings you have 10 good rooks fight the bad rooks.</p>
+      <a href="rooker.html">Play</a>
+    </div>
 
-  <a href="intent://com.android.settings/#Intent;scheme=android-app;action=com.google.android.gms.settings.SETTINGS;end">
-    Google
-  </a>
 
-  <a href="intent://com.android.settings/#Intent;scheme=android-app;action=android.settings.SYSTEM_SETTINGS;end">
-    System
-  </a>
+      <!-- Variant 9 -->
+    <div class="card">
+      <h2>New Chess</h2>
+      <p>Our Chess 2.0 with new pieces.</p>
+      <a href="chessnew.html">Play</a>
 
+        <!-- Variant 10 -->
+    <div class="card">
+      <h2>Robined Chess</h2>
+      <p>Every piece including the king have been combined with an rook can you capture both rooks of your opponent to win.</p>
+      <a href="robined.html">Play</a>
+    </div>
+    </div>
+  </div>
+
+  <footer>
+    Built for future chaos ♜
+  </footer>
 </div>
 
 </body>
 </html>
+
