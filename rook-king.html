@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Rook-King Chess</title>
+<style>
+  body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+  }
+  table {
+    border-collapse: collapse;
+  }
+  td {
+    width: 64px;
+    height: 64px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 40px;
+    cursor: pointer;
+  }
+  .white { background: #f0d9b5; }
+  .black { background: #b58863; }
+  .selected { outline: 3px solid red; }
+</style>
+</head>
+<body>
+
+<table id="board"></table>
+
+<script>
+const boardEl = document.getElementById("board");
+
+const pieces = {
+  K: "♔", Q: "♕", R: "♖", B: "♗", N: "♘", P: "♙",
+  k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟"
+};
+
+// simple starting position
+let board = [
+  ["r","n","b","q","k","b","n","r"],
+  ["p","p","p","p","p","p","p","p"],
+  ["","","","","","","",""],
+  ["","","","","","","",""],
+  ["","","","","","","",""],
+  ["","","","","","","",""],
+  ["P","P","P","P","P","P","P","P"],
+  ["R","N","B","Q","K","B","N","R"]
+];
+
+let selected = null;
+let turn = "white";
+
+function drawBoard() {
+  boardEl.innerHTML = "";
+  for (let y = 0; y < 8; y++) {
+    const row = document.createElement("tr");
+    for (let x = 0; x < 8; x++) {
+      const cell = document.createElement("td");
+      const isWhite = (x + y) % 2 === 0;
+      cell.className = isWhite ? "white" : "black";
+
+      const piece = board[y][x];
+      if (piece) cell.textContent = pieces[piece];
+
+      if (selected && selected.x === x && selected.y === y) {
+        cell.classList.add("selected");
+      }
+
+      cell.onclick = () => clickSquare(x, y);
+      row.appendChild(cell);
+    }
+    boardEl.appendChild(row);
+  }
+}
+
+function isWhitePiece(p) {
+  return p === p.toUpperCase();
+}
+
+function clickSquare(x, y) {
+  const piece = board[y][x];
+
+  if (!selected) {
+    if (piece && ((turn === "white") === isWhitePiece(piece))) {
+      selected = { x, y };
+      drawBoard();
+    }
+    return;
+  }
+
+  const from = selected;
+  const moving = board[from.y][from.x];
+  const target = board[y][x];
+
+  // capture → turn captured piece into rook
+  if (target) {
+    board[y][x] = isWhitePiece(moving) ? "R" : "r";
+  } else {
+    board[y][x] = moving;
+  }
+
+  board[from.y][from.x] = "";
+
+  // win condition: king reaches a rook
+  if ((moving === "K" || moving === "k") &&
+      (target === "R" || target === "r")) {
+    setTimeout(() => alert(`${turn.toUpperCase()} WINS!`), 50);
+  }
+
+  turn = turn === "white" ? "black" : "white";
+  selected = null;
+  drawBoard();
+}
+
+drawBoard();
+</script>
+
+</body>
+</html>
