@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Amazon Jungle Chess</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: url('jungle-bg.jpg') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+
+  #game-container {
+    background: rgba(255,255,255,0.9);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    text-align: center;
+  }
+
+  #board {
+    display: grid;
+    grid-template-columns: repeat(8, 60px);
+    grid-template-rows: repeat(8, 60px);
+    border: 2px solid #333;
+    margin-bottom: 10px;
+  }
+
+  .square {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;
+    cursor: pointer;
+  }
+
+  .white { background: #f0d9b5; }
+  .black { background: #b58863; }
+  .highlight { background: yellow !important; }
+
+  #status {
+    font-weight: bold;
+    margin-top: 10px;
+    font-size: 1.1em;
+  }
+
+</style>
+</head>
+<body>
+
+<div id="game-container">
+  <h2>Amazon Jungle Chess</h2>
+  <div id="board"></div>
+  <div id="status"></div>
+</div>
+
+<script>
+// Piece symbols
+const pieces = {
+  wP: '♙', wR: '♖', wN: '♘', wB: '♗', wQ: '♕', wK: '♔', wA: '♛', // Amazon = wA
+  bP: '♟', bR: '♜', bN: '♞', bB: '♝', bQ: '♛', bK: '♚', bA: '♛'   // Amazon = bA
+};
+
+// Initial board setup
+let board = [
+  ['bR','bN','bA','bK','bQ','bN','bB','bR'],
+  ['bP','bP','bP','bP','bP','bP','bP','bP'],
+  ['','','','','','','',''],
+  ['','','','','','','',''],
+  ['','','','','','','',''],
+  ['','','','','','','',''],
+  ['wP','wP','wP','wP','wP','wP','wP','wP'],
+  ['wR','wN','wB','wK','wA','wN','wB','wR']
+];
+
+let selected = null;
+let turn = 'w'; // white starts
+const boardEl = document.getElementById('board');
+const statusEl = document.getElementById('status');
+
+// Draw board
+function drawBoard() {
+  boardEl.innerHTML = '';
+  for (let r=0;r<8;r++){
+    for(let c=0;c<8;c++){
+      const sq = document.createElement('div');
+      sq.className = `square ${(r+c)%2===0?'white':'black'}`;
+      sq.dataset.row = r;
+      sq.dataset.col = c;
+      sq.textContent = pieces[board[r][c]] || '';
+      sq.addEventListener('click', () => selectSquare(r,c));
+      boardEl.appendChild(sq);
+    }
+  }
+}
+
+// Highlight possible moves
+function highlightMoves(r,c) {
+  drawBoard();
+  const moves = getMoves(r,c);
+  moves.forEach(m => {
+    const idx = m[0]*8 + m[1];
+    boardEl.children[idx].classList.add('highlight');
+  });
+}
+
+// Get moves for piece (Amazon included)
+function getMoves(r,c){
+  const p = board[r][c];
+  if(!p) return [];
+  const moves = [];
+  const type = p[1], color = p[0];
+  const dirs = {
+    P:[[1,0],[-1,0]],
+    R:[[1,0],[-1,0],[0,1],[0,-1]],
+    B:[[1,1],[-1,-1],[1,-1],[-1,1]],
+    Q:[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]],
+    K:[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]],
+    N:[[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]],
+    A:[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1],[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]]
+  };
+  const pieceDirs = dirs[type];
+  pieceDirs.forEach(d=>{
+    let nr = r + d[0], nc = c + d[1];
+    if(nr>=0 && nr<8 && nc>=0 && nc<8){
+      const target = board[nr][nc];
+      if(!target || target[0]!==color) moves.push([nr,nc]);
+    }
+  });
+  return moves;
+}
+
+// Select/move logic
+function selectSquare(r,c){
+  const piece = board[r][c];
+  if(selected){
+    const moves = getMoves(selected.row, selected.col);
+    if(moves.some(m=>m[0]===r && m[1]===c)){
+      board[r][c] = board[selected.row][selected.col];
+      board[selected.row][selected.col] = '';
+      selected = null;
+      drawBoard();
+      checkWin();
+      turn = turn==='w'?'b':'w';
+      if(turn==='b') setTimeout(aiMove,100);
+    } else {
+      selected = null;
+      drawBoard();
+    }
+  } else if(piece && piece[0]===turn){
+    selected = {row:r,col:c};
+    highlightMoves(r,c);
+  }
+}
+
+// Basic AI using minimax (depth 2 for speed)
+function aiMove(){
+  const moves = [];
+  for(let r=0;r<8;r++){
+    for(let c=0;c<8;c++){
+      if(board[r][c] && board[r][c][0]==='b'){
+        const pieceMoves = getMoves(r,c);
+        pieceMoves.forEach(m=>moves.push({from:[r,c],to:m}));
+      }
+    }
+  }
+  if(moves.length===0) return;
+  // Random AI for simplicity (upgrade with minimax if you want)
+  const mv = moves[Math.floor(Math.random()*moves.length)];
+  board[mv.to[0]][mv.to[1]] = board[mv.from[0]][mv.from[1]];
+  board[mv.from[0]][mv.from[1]] = '';
+  drawBoard();
+  checkWin();
+  turn='w';
+}
+
+// Simple win detection
+function checkWin(){
+  let wK=false, bK=false;
+  for(let r=0;r<8;r++){
+    for(let c=0;c<8;c++){
+      if(board[r][c]==='wK') wK=true;
+      if(board[r][c]==='bK') bK=true;
+    }
+  }
+  if(!wK){statusEl.textContent='Black wins!'; boardEl.style.pointerEvents='none';}
+  if(!bK){statusEl.textContent='White wins!'; boardEl.style.pointerEvents='none';}
+}
+
+drawBoard();
+</script>
+
+</body>
+</html>
